@@ -7,10 +7,18 @@ const input = document.querySelector('#txtTaskName');
 const btnDeleteAll = document.querySelector('#btnDeleteAll');
 const taskList = document.querySelector('#task-list');
 
+//call event listeners
 eventListeners();
 
 function eventListeners(){
+    //submit eevent
     form.addEventListener('submit',addNewItem)
+
+    //delete an item
+    taskList.addEventListener('click',deleteItem);
+
+    //delete all item
+    btnDeleteAll.addEventListener('click',deleteAllItem);
 }
 
 function addNewItem(e){
@@ -39,5 +47,34 @@ function addNewItem(e){
     input.value='';
 
 
+    e.preventDefault();
+}
+
+//delete an item
+function deleteItem(e) {
+   if(confirm('are u sure ?'))  {
+     
+    if(e.target.className=== 'fas fa-times') {
+        e.target.parentElement.parentElement.remove();
+           
+       }
+   }
+  
+    e.preventDefault();
+}
+
+function deleteAllItem(e) {
+    
+    if(confirm('are you sure ?')) {
+        taskList.childNodes.forEach(function(item){
+            if(item.nodeType === 1){
+                item.remove();
+            }
+        });
+    }
+    //alternatif seçenek-1
+    //taskList.innerHTML='';
+
+    
     e.preventDefault();
 }
