@@ -6,6 +6,10 @@ const form = document.querySelector('form');
 const input = document.querySelector('#txtTaskName');
 const btnDeleteAll = document.querySelector('#btnDeleteAll');
 const taskList = document.querySelector('#task-list');
+let items;
+
+//load items
+loadItems();
 
 //call event listeners
 eventListeners();
@@ -21,15 +25,48 @@ function eventListeners(){
     btnDeleteAll.addEventListener('click',deleteAllItem);
 }
 
-function addNewItem(e){
-    if(input.value ===''){
-        alert('add new item');
+function loadItems(){
+    
+   items = getItemsFromLS();
+   items.forEach(function (item) {
+       createItem(item);
+   });
+}
+
+//get items from local Storage
+function getItemsFromLS(){
+    if(localStorage.getItem('items') === null)
+    {
+        items=[];
+    }else{
+        items = JSON.parse(localStorage.getItem('items'));
     }
+    return items;
+}
+
+//set item to localStorage
+function setItemToLS(text) {
+    items = getItemsFromLS();
+    items.push(text);
+    localStorage.setItem('items',JSON.stringify(items));
+}
+
+function deleteItemFromLS(text){
+    items = getItemsFromLS();
+    items.forEach(function(item,index) {
+        if(item === text) {
+            items.splice(index,1);
+        }
+    });
+    localStorage.setItem('items',JSON.stringify(items));
+}
+
+function createItem(text) {
 
     //create li
     const li = document.createElement('li');
     li.className = 'list-group-item list-group-item-secondary';
-    li.appendChild(document.createTextNode(input.value));
+    li.appendChild(document.createTextNode(text));
 
     //create a
     const a = document.createElement('a');
@@ -43,6 +80,20 @@ function addNewItem(e){
     //add li to ul
     taskList.appendChild(li);
 
+}
+
+function addNewItem(e){
+    
+    if(input.value ===''){
+        alert('add new item');
+    }
+
+    //create item
+    createItem(input.value);
+   
+    //save to LS
+    setItemToLS(input.value);
+
     //clear input
     input.value='';
 
@@ -52,12 +103,13 @@ function addNewItem(e){
 
 //delete an item
 function deleteItem(e) {
-   if(confirm('are u sure ?'))  {
+   
      
-    if(e.target.className=== 'fas fa-times') {
-        e.target.parentElement.parentElement.remove();
-           
+    if(e.target.className === 'fas fa-times') {
+    if(confirm('are u sure ?'))  {
+        e.target.parentElement.parentElement.remove(); 
        }
+       deleteItemFromLS(e.target.parentElement.parentElement.textContent);
    }
   
     e.preventDefault();
@@ -66,15 +118,13 @@ function deleteItem(e) {
 function deleteAllItem(e) {
     
     if(confirm('are you sure ?')) {
-        taskList.childNodes.forEach(function(item){
-            if(item.nodeType === 1){
-                item.remove();
-            }
-        });
+        //taskList inner HTML
+        while(taskList.firstChild){
+            taskList.removeChild(taskList.firstChild);
+        }
+        localStorage.clear();
     }
-    //alternatif seçenek-1
-    //taskList.innerHTML='';
-
+   
     
     e.preventDefault();
 }
